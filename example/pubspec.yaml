@@ -6,10 +6,11 @@ description: Demonstrates how to use the geolocator_linux plugin.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.12.0
 
 dependencies:
-  baseflow_plugin_template: ^2.1.2
+  baseflow_plugin_template:
+    git: https://github.com/kumsumit/baseflow_plugin_template.git
   flutter:
     sdk: flutter
 
@@ -23,17 +24,19 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.1+1
+  cupertino_icons: ^1.0.9
 
   # The following adds the URL Launcher plugin which is used by
   # the demo application to open the links in the web browser.
-  url_launcher: ^6.0.18
-  geolocator_platform_interface: ^4.2.0
+  url_launcher:
+    git: https://github.com/kumsumit/url_launcher.git
+  geolocator_platform_interface:
+    git: https://github.com/kumsumit/geolocator_platform_interface.git
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

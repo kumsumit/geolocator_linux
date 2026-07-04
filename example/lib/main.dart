@@ -1,33 +1,39 @@
 import 'dart:async';
 
-import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator_platform_interface/geolocator_platform_interface.dart';
 
 /// Defines the main theme color.
-final MaterialColor themeMaterialColor =
-    BaseflowPluginExample.createMaterialColor(
-        const Color.fromRGBO(48, 49, 60, 1));
+final MaterialColor themeMaterialColor = _createMaterialColor(
+  const Color.fromRGBO(48, 49, 60, 1),
+);
 
 void main() {
-  runApp(BaseflowPluginExample(
-    pluginName: 'Geolocator',
-    githubURL: 'https://github.com/Baseflow/flutter-geolocator',
-    pubDevURL: 'https://pub.dev/packages/geolocator',
-    pages: [GeolocatorWidget.createPage()],
-  ));
+  runApp(const GeolocatorExampleApp());
+}
+
+/// Example application showing the functionalities of the geolocator plugin.
+class GeolocatorExampleApp extends StatelessWidget {
+  /// Creates a new GeolocatorExampleApp.
+  const GeolocatorExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Geolocator',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: themeMaterialColor),
+        useMaterial3: true,
+      ),
+      home: const GeolocatorWidget(),
+    );
+  }
 }
 
 /// Example [Widget] showing the functionalities of the geolocator plugin
 class GeolocatorWidget extends StatefulWidget {
   /// Create a GeolocatorWidget.
   const GeolocatorWidget({super.key});
-
-  /// Utility method to create a page with the Baseflow templating.
-  static ExamplePage createPage() {
-    return ExamplePage(
-        Icons.location_on, (context) => const GeolocatorWidget());
-  }
 
   @override
   State<GeolocatorWidget> createState() => _GeolocatorWidgetState();
@@ -47,11 +53,10 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    const buttonSpacer = SizedBox(
-      height: 10,
-    );
+    const buttonSpacer = SizedBox(height: 10);
 
     return Scaffold(
+      appBar: AppBar(title: const Text('Geolocator')),
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: ListView.builder(
         itemCount: _positionItems.length,
@@ -60,12 +65,14 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
 
           if (positionItem.type == _PositionItemType.log) {
             return ListTile(
-              title: Text(positionItem.displayValue,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  )),
+              title: Text(
+                positionItem.displayValue,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             );
           } else {
             return Card(
@@ -89,10 +96,11 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
             tooltip: (_positionStreamSubscription == null)
                 ? 'Start position updates'
                 : _positionStreamSubscription!.isPaused
-                    ? 'Resume'
-                    : 'Pause',
+                ? 'Resume'
+                : 'Pause',
             backgroundColor: _determineButtonColor(),
-            child: (_positionStreamSubscription == null ||
+            child:
+                (_positionStreamSubscription == null ||
                     _positionStreamSubscription!.isPaused)
                 ? const Icon(Icons.play_arrow)
                 : const Icon(Icons.pause),
@@ -121,10 +129,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
     }
 
     final Position position = await _geolocatorPlatform.getCurrentPosition();
-    _updatePositionList(
-      _PositionItemType.position,
-      position.toString(),
-    );
+    _updatePositionList(_PositionItemType.position, position.toString());
   }
 
   Future<bool> _handlePermission() async {
@@ -155,10 +160,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
-        _updatePositionList(
-          _PositionItemType.log,
-          _permissionDeniedMessage,
-        );
+        _updatePositionList(_PositionItemType.log, _permissionDeniedMessage);
 
         return false;
       }
@@ -176,10 +178,7 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    _updatePositionList(
-      _PositionItemType.log,
-      _permissionGrantedMessage,
-    );
+    _updatePositionList(_PositionItemType.log, _permissionGrantedMessage);
     return true;
   }
 
@@ -188,8 +187,9 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
     setState(() {});
   }
 
-  bool _isListening() => !(_positionStreamSubscription == null ||
-      _positionStreamSubscription!.isPaused);
+  bool _isListening() =>
+      !(_positionStreamSubscription == null ||
+          _positionStreamSubscription!.isPaused);
 
   Color _determineButtonColor() {
     return _isListening() ? Colors.green : Colors.red;
@@ -198,13 +198,17 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
   void _toggleListening() {
     if (_positionStreamSubscription == null) {
       final positionStream = _geolocatorPlatform.getPositionStream();
-      _positionStreamSubscription = positionStream.handleError((error) {
-        _positionStreamSubscription?.cancel();
-        _positionStreamSubscription = null;
-      }).listen((position) => _updatePositionList(
-            _PositionItemType.position,
-            position.toString(),
-          ));
+      _positionStreamSubscription = positionStream
+          .handleError((error) {
+            _positionStreamSubscription?.cancel();
+            _positionStreamSubscription = null;
+          })
+          .listen(
+            (position) => _updatePositionList(
+              _PositionItemType.position,
+              position.toString(),
+            ),
+          );
       _positionStreamSubscription?.pause();
     }
 
@@ -240,14 +244,36 @@ class _GeolocatorWidgetState extends State<GeolocatorWidget> {
   }
 }
 
-enum _PositionItemType {
-  log,
-  position,
-}
+enum _PositionItemType { log, position }
 
 class _PositionItem {
   _PositionItem(this.type, this.displayValue);
 
   final _PositionItemType type;
   final String displayValue;
+}
+
+MaterialColor _createMaterialColor(Color color) {
+  final strengths = <double>[.05];
+  final swatch = <int, Color>{};
+  final argb = color.toARGB32();
+  final red = (argb >> 16) & 0xff;
+  final green = (argb >> 8) & 0xff;
+  final blue = argb & 0xff;
+
+  for (var i = 1; i < 10; i++) {
+    strengths.add(0.1 * i);
+  }
+
+  for (final strength in strengths) {
+    final double delta = 0.5 - strength;
+    swatch[(strength * 1000).round()] = Color.fromRGBO(
+      red + ((delta < 0 ? red : (255 - red)) * delta).round(),
+      green + ((delta < 0 ? green : (255 - green)) * delta).round(),
+      blue + ((delta < 0 ? blue : (255 - blue)) * delta).round(),
+      1,
+    );
+  }
+
+  return MaterialColor(color.toARGB32(), swatch);
 }
